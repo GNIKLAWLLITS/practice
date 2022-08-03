@@ -489,25 +489,155 @@ void test12() {
  *        一个按元素值递减次序排列的单链表，并要求利用原来的两个单链表的结点存放归并后的单链表
  * 
  * 思路：和第10题比较，第10题是将一个单链表拆分为两个单链表（且仍使用原来的结点），此题是将两个单链表合并为一个单链表（且仍使用原来的结点）
+ *      要求合并后的链表递减排序，因此使用头插法
  */
 
-void mergeList(LinkedList &LA, LinkedList &LB) {
-    
+/**
+ * @brief 将LA和LB合并，仍使用原来的结点
+ * 
+ * @param LA 
+ * @param LB 
+ * @return LNode* 
+ */
+LNode* mergeList(LinkedList &LA, LinkedList &LB) {
+    LNode *pa=LA->next, *pb=LB->next;
+    LNode *result = new LNode;
+    result->next = NULL;
+    while (pa!=NULL && pb!=NULL) {
+        if (pa->data < pb->data) {
+            LA->next = pa->next;
+            pa->next = result->next;
+            result->next = pa;
+            pa = LA->next;
+        } else {
+            LB->next = pb->next;
+            pb->next = result->next;
+            result->next = pb;
+            pb = LB->next;
+        }
+    }
+
+    while (pa != NULL) {
+        LA->next = pa->next;
+        pa->next = result->next;
+        result->next = pa;
+        pa = LA->next;
+    }
+    while (pb != NULL) {
+        LB->next = pb->next;
+        pb->next = result->next;
+        result->next = pb;
+        pb = LB->next;
+    }
+
+    return result;
+}
+
+void test13() {
+    LNode *LA;
+    LA = tailInsert(LA);
+    LNode *LB;
+    LB = tailInsert(LB);
+    printf("LA: ");
+    listPrint(LA);
+    printf("LB: ");
+    listPrint(LB);
+
+    LNode *result = mergeList(LA, LB);
+    printf("result: ");
+    listPrint(result);
+    printf("LA: ");
+    listPrint(LA);
+    printf("LB: ");
+    listPrint(LB);
 }
 
 /**
- * 第14题：设A和B是两个单链表(带头节点)，其中元素递增有序。设计一个算法从A和B中的公共元素产生单链表C，要求不破坏A,B的结点
+ * 第14题：设A和B是两个单链表(带头结点)，其中元素递增有序。设计一个算法从A和B中的公共元素产生单链表C，要求不破坏A,B的结点
  * 
- * 思路：
+ * 思路：双指针遍历
  */
 
+LNode* generateCommonList1(LinkedList LA, LinkedList LB) {
+    LNode *pa=LA->next, *pb=LB->next;
+    LNode *res = new LNode;
+    res->next = NULL;
+    while (pa!=NULL && pb!=NULL) {
+        if (pa->data < pb->data) {
+            pa = pa->next;
+        } else if (pb->data < pa->data) {
+            pb = pb->next;
+        } else {
+            LNode *n = new LNode;
+            n->data = pa->data;
+            n->next = res->next;
+            res->next = n;
+            pa = pa->next;
+            pb = pb->next;
+        }
+    }
+    return res;
+}
+
+void test14() {
+    LNode *LA;
+    LA = tailInsert(LA);
+    LNode *LB;
+    LB = tailInsert(LB);
+    printf("LA: ");
+    listPrint(LA);
+    printf("LB: ");
+    listPrint(LB);
+
+    LNode *result = generateCommonList1(LA, LB);
+    printf("result: ");
+    listPrint(result);
+    printf("LA: ");
+    listPrint(LA);
+    printf("LB: ");
+    listPrint(LB);
+}
 
 /**
  * 第15题：已知两个链表A和B分别表示两个集合，其元素递增排列。编制函数，求A与B的交集，并存放于A链表中
  * 
- * 思路：
+ * 思路：和第14题比较，14题是返回新的结点和新链表，此题是使用原来的结点
  */
 
+void generateCommonList2(LinkedList &LA, LinkedList &LB) {
+    LNode *pa=LA->next, *pb=LB->next;
+    LA->next = NULL;
+    while (pa!=NULL && pb!=NULL) {
+        if (pa->data < pb->data) {
+            pa = pa->next;
+        } else if (pb->data < pa->data) {
+            pb = pb->next;
+        } else {
+            LNode *r = pa->next;
+            pa->next = LA->next;
+            LA->next = pa;
+            pa = r;
+            pb = pb->next;
+        }
+    }
+}
+
+void test15() {
+    LNode *LA;
+    LA = tailInsert(LA);
+    LNode *LB;
+    LB = tailInsert(LB);
+    printf("LA: ");
+    listPrint(LA);
+    printf("LB: ");
+    listPrint(LB);
+
+    generateCommonList2(LA, LB);
+    printf("LA: ");
+    listPrint(LA);
+    printf("LB: ");
+    listPrint(LB);
+}
 
 /**
  * 第16题：两个整数序列A=a1,a2,...,am，B=b1,b2,...,bn。已经存入两个单链表中，设计一个算法，判断序列B是否是序列A的连续子序列
@@ -517,7 +647,7 @@ void mergeList(LinkedList &LA, LinkedList &LB) {
 
 
 /**
- * 第17题：设计一个算法用于判断带头节点的循环双链表是否对称
+ * 第17题：设计一个算法用于判断带头结点的循环双链表是否对称
  * 
  * 思路：
  */
@@ -574,7 +704,7 @@ void mergeList(LinkedList &LA, LinkedList &LB) {
  */
 
 /**
- * 第25题：设线性表L=(a1,a2,a3,...,an-2,an-1,an)，采用带头节点的单链表保存。设计算法，重新排列L中的节点，得到线性表L'=(a1,an,a2,an-1,a3,an-2,...)
+ * 第25题：设线性表L=(a1,a2,a3,...,an-2,an-1,an)，采用带头结点的单链表保存。设计算法，重新排列L中的结点，得到线性表L'=(a1,an,a2,an-1,a3,an-2,...)
  * 
  * 思路：
  */
@@ -582,5 +712,5 @@ void mergeList(LinkedList &LA, LinkedList &LB) {
 
 /* test */
 int main() {
-    test12();
+    test15();
 }
