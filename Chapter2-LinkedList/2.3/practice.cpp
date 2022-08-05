@@ -425,7 +425,7 @@ void test10() {
  *        将其拆分为两个线性表，使得A={a1,a2,...,an}，B={bn,...,b2,b1}
  * 
  * 思路：参考第10题，可以先拆分为LA和LB，然后将LB逆置即可。也可以在拆分的过程中逆置
- *      TODO 待补充
+ *      TODO: 待补充
  */
 
 void splitList2(LinkedList &L, LinkedList &LA, LinkedList &LB) {
@@ -642,29 +642,156 @@ void test15() {
 /**
  * 第16题：两个整数序列A=a1,a2,...,am，B=b1,b2,...,bn。已经存入两个单链表中，设计一个算法，判断序列B是否是序列A的连续子序列
  * 
- * 思路：
+ * 思路：类比字符串的模式匹配，蛮力法
  */
+
+bool isSubSeq1(LinkedList LA, LinkedList LB) {
+    LNode *prev=LA->next, *pa=prev, *pb=LB->next;
+    while (pa!=NULL && pb!=NULL) {
+        if (pa->data == pb->data) {
+            pa = pa->next;
+            pb = pb->next;
+        }
+        else {
+            prev = prev->next;
+            pa = prev;
+            pb = LB->next;
+        }
+    }
+    if (pb == NULL) {
+        return true;    
+    }
+    return false;
+}
+
+void test16() {
+    LNode *LA;
+    LA = tailInsert(LA);
+    LNode *LB;
+    LB = tailInsert(LB);
+    printf("LA: ");
+    listPrint(LA);
+    printf("LB: ");
+    listPrint(LB);
+
+    if (isSubSeq1(LA, LB)) {
+        printf("LB is a sub-sequence of LA");
+    } else {
+        printf("LB is not a sub-sequence of LA");
+    }
+}
 
 
 /**
  * 第17题：设计一个算法用于判断带头结点的循环双链表是否对称
  * 
- * 思路：
- */
+ * 思路：（实现暂时跳过）
+ *      循环双链表的结构如下图所示
+ *              
+ *                  head->prev
+ *             -------------------|
+ *             |                  v
+ *      L -> head <-> 1 <-> 2 <-> 1  
+ *             ^                  |
+ *             |-------------------
+ * 
+ *      因此可以从head出发，一个指针向prev方向移动，一个指针向next方向移动，比较他们的元素值是否相等
+ */      
 
 /**
  * 第18题：有两个循环单链表，链表头指针分别为h1和h2，编写一个函数将链表h2链接到链表h1之后，要求链接后的链表仍保持循环链表形式
  * 
- * 思路：
+ * 思路：图解如下
+ *      
+ *      h1 -> e1 -> e2 -|
+ *      ^               |
+ *      |----------------
+ * 
+ *      h2 -> e3 -> e4 -|
+ *      ^               |
+ *      |----------------
+ * 
+ *      首先遍历到h1的末尾，然后让e2->next = e3，然后遍历到h2的末尾，e4->next = h1
  */
 
+void concat1(LinkedList &LA, LinkedList &LB) {
+    LNode *ra=LA, *rb=LB;
+    while (ra->next != NULL) {
+        ra = ra->next;
+    }
+    while (rb->next != NULL) {
+        rb = rb->next;
+    }
+    if (rb != LB) {
+        rb->next = LA;
+        ra->next = LB->next;
+    }
+}
+
+void test18() {
+    LNode *LA;
+    LA = tailInsert(LA);
+    LNode *LB;
+    LB = tailInsert(LB);
+    printf("LA: ");
+    listPrint(LA);
+    printf("LB: ");
+    listPrint(LB);
+
+    concat1(LA, LB);
+    printf("LA: ");
+    LNode *temp = LA->next;
+    while (temp != LA) {
+        printf("%d ", temp->data);
+        temp = temp->next;
+    }
+}
 
 /**
  * 第19题：设有一个带头结点的循环单链表，其结点值均为正整数。设计一个算法，反复找出单链表中结点值最小的结点并输出，
  *        然后将该结点从中删除，直到单链表空为止，再删除表头结点
  * 
- * 思路：
+ * 思路：循环遍历
  */
+
+void deleteMin3(LinkedList &L) {
+    while (L->next != L) {
+        LNode *prev=L, *p=L->next;
+        LNode *minp = prev;
+        int min = p->data;
+        while (p != L) {
+            prev = p;
+            p = p->next;
+            if (p!=L && p->data<min) {
+                min = p->data;
+                minp = prev;
+            }
+        }
+        LNode *temp = minp->next;
+        minp->next = temp->next;
+        printf("%d ", temp->data);
+        delete temp;
+    }
+    delete L;
+}
+
+void test19() {
+    LinkedList L;
+    L = tailInsert(L);
+    LNode *temp = L->next;
+    while (true) {
+        printf("%d ", temp->data);
+        if (temp->next == NULL) {
+            temp->next = L;
+            break;
+        }
+        temp = temp->next;
+    }
+    printf("\n");
+
+    printf("delete min: ");
+    deleteMin3(L);
+}
 
 /**
  * 第20题：设头指针为L的带有表头结点的非循环双向链表，其每个结点中除有pred(前驱指针)、data (数据)和next (后继指针)域外，
@@ -673,44 +800,203 @@ void test15() {
  *        前面，以便使频繁访问的结点总是靠近表头。试编写符合上述要求的Locate (L,x)运算的算法，该运算为函数过程，返回找到
  *        结点的地址，类型为指针型
  * 
- * 思路：
+ * 思路：TODO: 待补充
  */
 
 /**
  * 第21题：单链表有环，是指单链表的最后一个结点的指针指向了链表中的某个结点(通常单链表的最后一个结点的指针域是空的)。
  *        试编写算法判断单链表是否存在环
  * 
- * 思路：
+ * 思路：快慢指针，快指针每次走两步，慢指针每次走一步，如果快指针不为NULL且等于慢指针，则说明有环
+ * 
+ *                        -------e5
+ *                        |      ^ 
+ *                        v      |
+ *      L -> e1 -> e2 -> e3      | 
+ *                        |      |
+ *                        -----> e4     
  */
+
+bool isLoop1(LinkedList L) {
+    LNode *fast=L->next, *slow=L;
+    while (fast!=NULL && fast->next!=NULL) {
+        slow = slow->next;
+        fast = fast->next->next;
+        if (fast == slow) {
+            return true;
+        }
+    }
+    return false;
+}
+
+void test21() {
+    LinkedList L;
+    L = tailInsert(L);
+    listPrint(L);
+
+    // 加环
+    LNode *temp = L;
+    while (temp->next != NULL) {
+        temp = temp->next;
+    }
+    temp->next = L->next;
+
+    if (isLoop1(L)) {
+        printf("There is a loop in linked list\n");
+    } else {
+        printf("There is no loop in linked list\n");
+    }
+
+}
 
 /**
  * 第22题：已知一个带有表头结点的单链表。假设该链表只给出了头指针list. 在不改变链表的前提下，请设计一个尽可能高效的算法，
- *        查找链表中倒数第k个位置上的结点(k为正整数)。若查找成功，算法输出该结点的data域的值，并返回1;否则，只返回0
+ *        查找链表中倒数第k个位置上的结点(k为正整数)。若查找成功，算法输出该结点的data域的值，并返回1；否则，只返回0
  * 
- * 思路：
+ * 思路：定义两个指针变量p和q，初始时均指向头结点的下一结点，p指针沿着链表移动，当p指针移动到正数第k个结点时，q指针开始和
+ *      p指针同步移动，当p指针移动到最后一个结点时，q指针就指向倒数第k个结点。
+ *      
+ *      以k=3为例：
+ * 
+ *           q           p                                                                   q                 p
+ *           |           |                                                                   |                 |
+ *           v           v                                                                   v                 v
+ *      L -> e1 -> e2 -> e3 -> e4 -> ... -> e(n-1) -> en ======> L -> e1 -> e2 -> e3 -> ...e(n-2) -> e(n-1) -> en
  */
+
+int findKthLastElem1(LinkedList L, int k) {
+    LNode *p=L->next, *q=p;
+    int count = 1;
+    while (p!=NULL && p->next!=NULL) {
+        p = p->next;
+        if (count > k) {
+            q = q->next;
+        }
+        count++;
+    }
+    if (count < k) {
+        return 0;
+    }
+    printf("%d ", q->data);
+    return 1;
+}
+
+void test22() {
+    LinkedList L;
+    L = tailInsert(L);
+    listPrint(L);
+    int k = 4;
+    if (findKthLastElem1(L, k)) {
+        printf("is the %dth last element\n", k);
+    } else {
+        printf("can't find the %dth last element", k);
+    }
+}
 
 /**
  * 第23题：假定采用带头结点的单链表保存单词，当两个单词有相同的后缀时，可共享相同的后缀存储空间，例如，"loading" 和"being" 的存储映像如下图所示
+ *        
+ *        str1 -> l -> o -> a -> d -\
+ *                                   -------> i -> n -> g
+ *        str2 -> b -> e -----------/
+ *        
+ *        设str1和str2分别指向两个单词所在单链表的头结点，链表结点结构为data，next。请设计一个时间上尽可能高效的算法，
+ *        找出由str1和str2所指向两个链表共同后的起始位置（如图中字符i所在结点）
  * 
- * 思路：
+ * 思路：和第8题一致
  */
 
 /**
- * 第24题：用单链表保存m个整数，结点的结构为[data][link], 且  I data l < n(n为正整数)。现要求设计一个时间复杂度尽可能高效的算法，
+ * 第24题：用单链表保存m个整数，结点的结构为[data][link], 且|data|<n（n为正整数）。现要求设计一个时间复杂度尽可能高效的算法，
  *        对于链表中data的绝对值相等的结点，仅保留第一次出现的结点而删除其余绝对值相等的结点
  * 
- * 思路：
+ * 思路：和第12题比较，最主要的区别是此题并不保证元素有序
+ *      注意到|data|一定会小于n，因此可以使用长度为n的数组来记录值是否存在（计数排序）
  */
+
+void deleteSameAbsValue(LinkedList &L, int n) {
+    int count[n] = {0};
+    LNode *prev=L, *p=L->next;
+    while (p != NULL) {
+        if (count[abs(p->data)] == 0) {
+            count[abs(p->data)] = 1;
+            prev = p;
+            p = p->next;
+        } else {
+            prev->next = p->next;
+            LNode *temp = p;
+            p = p->next;
+            delete temp;
+        }
+    }
+}
+
+void test24() {
+    LinkedList L;
+    L = tailInsert(L);
+    listPrint(L);
+    deleteSameAbsValue(L, 6);
+    listPrint(L);
+}
 
 /**
  * 第25题：设线性表L=(a1,a2,a3,...,an-2,an-1,an)，采用带头结点的单链表保存。设计算法，重新排列L中的结点，得到线性表L'=(a1,an,a2,an-1,a3,an-2,...)
  * 
- * 思路：
+ * 思路：逆置+穿插
+ *      分析可发现
+ *                                                                          重排列
+ *      L -> a1 -> a2 -> ... -> a(n/2) -> a(n/2+1) -> ... -> a(n-1) -> an =========> L -> a1 -> an -> a2 -> a(n-1) -> ... -> a(n/2+1)
+ *      
+ *      1.重排列的过程实际上就是先取队首元素，再取队尾元素
+ *      2.重排列后队尾元素一定是a(n/2+1)
+ *      
+ *      因此可以先使用快慢指针找到中间结点，再将重排列过程看作是将a(n/2+1)之后的元素先逆置，再穿插
+ * 
+ *      TODO: 错误，待修改
  */
 
+void rearrange1(LinkedList &L) {
+
+    // 1.快慢指针找中间结点
+    LNode *fast=L->next, *slow=fast;
+    while (fast!=NULL && fast->next!=NULL) {
+        fast = fast->next->next;
+        slow = slow->next;
+    }
+    if (slow==NULL || slow->next==NULL) {
+        return;
+    }
+
+    // 2.逆置后半段链表
+    LNode *prev=slow, *p=prev->next, *r;
+    while (p != NULL) {
+        r = p->next;
+        p->next = prev;
+        prev = p;
+        p = r;
+    }
+    slow->next->next = NULL;
+    slow->next = prev;
+
+    // 3.穿插
+    fast = L->next; // 重新利用fast
+    while (p != NULL) {
+        p = slow->next;
+        slow->next = p->next;
+        p->next = fast->next;
+        fast->next = p;
+    }
+}
+
+void test25() {
+    LinkedList L;
+    L = tailInsert(L);
+    listPrint(L);
+    rearrange1(L);
+    listPrint(L);
+}
 
 /* test */
 int main() {
-    test15();
+    test25();
 }
